@@ -45,7 +45,7 @@ def index():
     data = client2.getJcodeImage(cookie)
     resp = make_response(data)
     resp.set_cookie('JSESSIONID', JSESSIONID)
-    resp.set_cookie('rno', rno)
+    resp.set_cookie('rno', rno,)
     print JSESSIONID
     print rno
     return resp
@@ -76,7 +76,7 @@ def sign_in():
     cookie = "JSESSIONID="+JSESSIONID
     if client.loginPost(username, password, jcode, rno, cookie):
         client.loginGet(cookie)
-        return client.personDataGet(cookie)
+        return render_template("grade.html")
     else:
         return u"登陆出错！"
 
@@ -92,12 +92,14 @@ def getClass():
     resp = make_response(data)
     return resp
 
-@app.route('/grade', methods=['POST'])
-def get_grade():
+@app.route('/grade', methods=['POST','GET'])
+def getGrade():
     xn = str(request.form.get("xn"))
     xq = str(request.form.get('xq'))
-    JSESSIONID = request.cookies.get("JSESSIONID")
-    cookie = "JSESSIONID="+JSESSIONID
+    print "xn: ", xn, " xq: ", xq
+    JSESSIONID = str(request.cookies.get("JSESSIONID")).strip()
+    print "JSESSIONID: ", JSESSIONID 
+    cookie = "JSESSIONID="+ JSESSIONID
     client = sysujwxt.Client()
     data = client.getGrade(xn, xq, cookie)
     resp = make_response(data)
