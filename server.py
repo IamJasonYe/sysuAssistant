@@ -76,7 +76,7 @@ def sign_in():
     cookie = "JSESSIONID="+JSESSIONID
     if client.loginPost(username, password, jcode, rno, cookie):
         client.loginGet(cookie)
-        return render_template("grade.html")
+        return render_template("timetable.html")
     else:
         return u"登陆出错！"
 
@@ -102,6 +102,19 @@ def getGrade():
     cookie = "JSESSIONID="+ JSESSIONID
     client = sysujwxt.Client()
     data = client.getGrade(xn, xq, cookie)
+    resp = make_response(data)
+    return resp
+
+@app.route('/timetable', methods=['POST', 'GET'])
+def getTimeTable():
+    xn = str(request.form.get("xn"))
+    xq = str(request.form.get('xq'))
+    print "xn: ", xn, " xq: ", xq
+    JSESSIONID = str(request.cookies.get("JSESSIONID")).strip()
+    print "JSESSIONID: ", JSESSIONID 
+    cookie = "JSESSIONID="+ JSESSIONID
+    client = sysujwxt.Client()
+    data = client.getTimeTable(xn, xq, cookie)
     resp = make_response(data)
     return resp
 

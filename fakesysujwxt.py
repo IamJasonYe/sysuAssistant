@@ -140,9 +140,19 @@ class Client:
         header['Cookie']= cookie
         header['render']= 'unieap'
         header['Content-Type']='multipart/form-data'
-        print header
         return self.getResponse(url, data=data, header=header, encode=False).read()
-        
+    
+    def getTimeTable(self, xn,xq, cookie=None):
+        url = "http://uems.sysu.edu.cn/jwxt/xstk/xstk.action?method=getXsxkjgxxlistByxh"
+        referer = "http://uems.sysu.edu.cn/jwxt/forward.action?path=/sysu/xk/zxxk/xsxk/search_xkjg_xs.jsp?pylbm=01"
+        data = "{header:{\"code\": -100, \"message\": {\"title\": \"\", \"detail\": \"\"}},body:{dataStores:{xsxkjgStore:{rowSet:{\"primary\":[],\"filter\":[],\"delete\":[]},name:\"xsxkjgStore\",pageNumber:1,pageSize:200,recordCount:7,rowSetName:\"pojo_com.neusoft.education.sysu.xk.xkjg.entity.XkjgxxEntity\",order:\"xkjg.xnd desc,xkjg.xq desc, xkjg.jxbh\"}},parameters:{\"xsxkjgStore-params\": [{\"name\": \"Filter_xkjg.xnd_0.19219378506001378\", \"type\": \"String\", \"value\": \"'%s'\", \"condition\": \" = \", \"property\": \"xkjg.xnd\"}, {\"name\": \"Filter_xkjg.xq_0.4324176004374645\", \"type\": \"String\", \"value\": \"'%s'\", \"condition\": \" = \", \"property\": \"xkjg.xq\"}], \"args\": []}}}"%(xn,xq)
+        header = {}
+        header['Referer']= referer
+        header['Cookie']= cookie
+        header['render']= 'unieap'
+        header['Content-Type']='multipart/form-data'
+        return self.getResponse(url, data=data, header=header, encode=False).read()
+    
     def getBase(self, url, cookie=None, data=None, header={}):
         try:
             response = self.getResponse(url, data=data, header={"Cookie":cookie})
