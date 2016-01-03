@@ -39,7 +39,6 @@ def getJsonString(s0):
 def getContent(s):
     return s.split('rowSet:{primary:[')[1][:-6]
 
-=======
 # 提取Json
 def parse_js(expr):
      import ast
@@ -198,7 +197,7 @@ class Client:
         timetable = self.getResponse(url, data=data, header=header, encode=False).read()
         content = getContent(timetable)
         return content
-    
+
     def getBase(self, url, cookie=None, data=None, header={}):
         try:
             response = self.getResponse(url, data=data, header={"Cookie":cookie})

@@ -45,7 +45,7 @@ def index():
     data = client2.getJcodeImage(cookie)
     resp = make_response(data)
     resp.set_cookie('JSESSIONID', JSESSIONID)
-    resp.set_cookie('rno', rno,)
+    resp.set_cookie('rno', rno)
     print JSESSIONID
     print rno
     return resp
@@ -76,7 +76,7 @@ def sign_in():
     cookie = "JSESSIONID="+JSESSIONID
     if client.loginPost(username, password, jcode, rno, cookie):
         client.loginGet(cookie)
-        return render_template("timetable.html")
+        return client.personDataGet(cookie)
     else:
         return u"登陆出错！"
 
