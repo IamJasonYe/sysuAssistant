@@ -24,6 +24,7 @@ def random_cookie():
     s += ''.join(random.sample('ERYEDHSDWERHRHFGNHWRHT',8))
     return s
 
+# 提取Json
 def parse_js(expr):
      import ast
      m = ast.parse(expr)
@@ -68,6 +69,7 @@ class Client:
         # cookie_support = urllib2.HTTPCookieProcessor(cookiejar)
         # self.opener = urllib2.build_opener(cookie_support)
 
+    # 获得HTTP相应
     def getResponse(self, url, data=None, encode=True, header={}):
         try:
             if encode:
@@ -80,13 +82,13 @@ class Client:
         except Exception, e:
             print "fuck: ",e.message
     
-    
+    # 获取JSESSIONID
     def getJSESSIONID(self):
         url = 'http://uems.sysu.edu.cn/jwxt/'
         response = self.getResponse(url)
         return response.info().getheader("Set-Cookie").split(";")[0].split("=")[1]
 
-
+    # 获取登陆页面中的RNO值
     def getRno(self, cookie=None):
         url = 'http://uems.sysu.edu.cn/jwxt/'
         parser = MyHTMLParser()
@@ -95,7 +97,7 @@ class Client:
         parser.feed(response.read().decode('utf-8'))
         return parser.rno
 
-
+    # 获取验证码图片
     def getJcodeImage(self, cookie=None):
         url = 'http://uems.sysu.edu.cn/jwxt/jcaptcha'
         referer = 'http://uems.sysu.edu.cn/jwxt/'
@@ -108,7 +110,7 @@ class Client:
         # data = base64.b64encode(data)
         return data
 
-
+    # 登录并返回状态
     def loginPost(self, username, password, j_code, rno, cookie):
         url = 'http://uems.sysu.edu.cn/jwxt/j_unieap_security_check.do'
         data = {'j_username': username, 'j_password': md5(password), 'jcaptcha_response': j_code, 'rno': rno}
@@ -119,17 +121,17 @@ class Client:
         except urllib2.HTTPError, e:
             return False
 
-
+    # 获取登录后主页
     def loginGet(self, cookie):
         url = 'http://uems.sysu.edu.cn/jwxt/login.do?method=login'
         self.getBase(url, cookie)
 
-
+    # 获取个人信息页面
     def personDataGet(self, cookie):
         url = 'http://uems.sysu.edu.cn/jwxt/edp/menu/RootMenu.jsp'
         return self.getBase(url, cookie)
 
-
+    # 获取课程表？还有问题吧？
     def getClass(self, cookie, xq, xnd):
         url = 'http://uems.sysu.edu.cn/jwxt/KcbcxAction/KcbcxAction.action?method=getList'
         header = {}
@@ -140,18 +142,19 @@ class Client:
          }
         return self.getBase(url=url, cookie=cookie, data=data, header = header)
 
-
+    # 选课系统登录
     def electLogin(self, username, password, j_code, cookie):
         url = "http://uems.sysu.edu.cn/elect/login/"
         data = {'username': username, 'password': md5(password), 'j_code': j_code}
         return self.getResponse(url, data=data, header={"Cookie":cookie})
 
 
-
+    # 选课系统验证码
     def electGetImage(self, cookie):
         url = "http://uems.sysu.edu.cn/elect/login/code"
         return self.getResponse(url, header={"Cookie":cookie})
 
+    # 获取成绩
     def getGrade(self, xn, xq, cookie=None):
         url = "http://uems.sysu.edu.cn/jwxt/xscjcxAction/xscjcxAction.action?method=getKccjList"
         referer = "http://uems.sysu.edu.cn/jwxt/forward.action?path=/sysu/xscj/xscjcx/xsgrcj_list"
@@ -164,6 +167,7 @@ class Client:
         grade = self.getResponse(url, data=data, header=header, encode=False).read()
         return str(parse_js(grade))
     
+    # 获取课程表
     def getTimeTable(self, xn,xq, cookie=None):
         url = "http://uems.sysu.edu.cn/jwxt/xstk/xstk.action?method=getXsxkjgxxlistByxh"
         referer = "http://uems.sysu.edu.cn/jwxt/forward.action?path=/sysu/xk/zxxk/xsxk/search_xkjg_xs.jsp?pylbm=01"
@@ -173,7 +177,8 @@ class Client:
         header['Cookie']= cookie
         header['render']= 'unieap'
         header['Content-Type']='multipart/form-data'
-        return self.getResponse(url, data=data, header=header, encode=False).read()
+        timetable = self.getResponse(url, data=data, header=header, encode=False).read()
+        return str(parse_js(timetable))
     
     def getBase(self, url, cookie=None, data=None, header={}):
         try:
