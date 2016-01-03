@@ -24,6 +24,27 @@ def random_cookie():
     s += ''.join(random.sample('ERYEDHSDWERHRHFGNHWRHT',8))
     return s
 
+def parse_js(expr):
+     import ast
+     m = ast.parse(expr)
+     a = m.body[0]
+     def parse(node):
+         if isinstance(node, ast.Expr):
+             return parse(node.value)
+         elif isinstance(node, ast.Num):
+             return node.n
+         elif isinstance(node, ast.Str):
+             return node.s
+         elif isinstance(node, ast.Name):
+             return node.id
+         elif isinstance(node, ast.Dict):
+             return dict(zip(map(parse, node.keys), map(parse, node.values)))
+         elif isinstance(node, ast.List):
+             return map(parse, node.elts)
+         else:
+             raise NotImplementedError(node.__class__)
+     return parse(a)
+
 
 def md5(str):
     import hashlib
@@ -140,7 +161,8 @@ class Client:
         header['Cookie']= cookie
         header['render']= 'unieap'
         header['Content-Type']='multipart/form-data'
-        return self.getResponse(url, data=data, header=header, encode=False).read()
+        grade = self.getResponse(url, data=data, header=header, encode=False).read()
+        return str(parse_js(grade))
     
     def getTimeTable(self, xn,xq, cookie=None):
         url = "http://uems.sysu.edu.cn/jwxt/xstk/xstk.action?method=getXsxkjgxxlistByxh"
