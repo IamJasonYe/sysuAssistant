@@ -7,6 +7,7 @@ import cookielib
 from HTMLParser import HTMLParser as hp
 import random
 import json
+import re
 
 
 class MyHTMLParser(hp):
@@ -23,6 +24,20 @@ def random_cookie():
     s += ''.join(random.sample('ZXCBCVNDFHJRTKHMABZVXB',8))
     s += ''.join(random.sample('ERYEDHSDWERHRHFGNHWRHT',8))
     return s
+
+def getJsonString(s0):
+    s0 = re.sub(r'[\[\]]', '', s0)
+    s0 = re.sub(r'\"\"', '"None"', s0)
+    s1 =  re.sub(r'\"', '', s0)
+    s2 = re.sub(r'([^:,{}]+)', r'"\1"', s1)
+    s3 = re.sub(r'\"order\":\"t.xn\",\" t.xq\",\" t.kch\",\" t.bzw\"' , r'"order":"t.xn, t.xq, t.kch, t.bzw"', s2)
+    s4 = re.sub(r'\"Mobile Information Engineering Training\":\" Elementary\"', r'"Mobile Information Engineering Training: Elementary"', s3)
+    s5 = re.sub(r'\\\/', r'/', s4)
+    return s5
+
+
+def getContent(s):
+    return s.split('rowSet:{primary:[')[1][:-6]
 
 def parse_js(expr):
      import ast
@@ -162,8 +177,9 @@ class Client:
         header['render']= 'unieap'
         header['Content-Type']='multipart/form-data'
         grade = self.getResponse(url, data=data, header=header, encode=False).read()
-        return str(parse_js(grade))
-    
+        content = getContent(grade)
+        return content
+
     def getTimeTable(self, xn,xq, cookie=None):
         url = "http://uems.sysu.edu.cn/jwxt/xstk/xstk.action?method=getXsxkjgxxlistByxh"
         referer = "http://uems.sysu.edu.cn/jwxt/forward.action?path=/sysu/xk/zxxk/xsxk/search_xkjg_xs.jsp?pylbm=01"
@@ -173,7 +189,9 @@ class Client:
         header['Cookie']= cookie
         header['render']= 'unieap'
         header['Content-Type']='multipart/form-data'
-        return self.getResponse(url, data=data, header=header, encode=False).read()
+        timetable = self.getResponse(url, data=data, header=header, encode=False).read()
+        content = getContent(timetable)
+        return content
     
     def getBase(self, url, cookie=None, data=None, header={}):
         try:
